@@ -8,10 +8,12 @@ import android.annotation.TargetApi;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconParser;
@@ -28,12 +30,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 if (this.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
+                        != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (this.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                         builder.setTitle("This app needs background location access");
@@ -69,22 +73,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 if (this.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                             PERMISSION_REQUEST_FINE_LOCATION);
                 }
                 else {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Functionality limited");
-                    builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons.  Please go to Settings -> Applications -> Permissions and grant location access to this app.");
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                        }
-
-                    });
                     builder.show();
                 }
 
